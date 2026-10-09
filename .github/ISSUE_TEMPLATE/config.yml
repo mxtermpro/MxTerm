@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Install / won't open help
+    url: https://github.com/mxtermpro/Mxterm/blob/main/docs/install.md
+    about: First-launch warnings on macOS, Windows and Linux.
+  - name: Questions & ideas (Discussions)
+    url: https://github.com/mxtermpro/Mxterm/discussions
+    about: Ask a question or share how you use MXterm Pro.
+  - name: Website, pricing & docs
+    url: https://mxterm.net
+    about: Full documentation, pricing and downloads.

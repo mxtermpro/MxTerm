@@ -1,0 +1,32 @@
+name: Bug report
+description: Something isn't working right in MXterm Pro
+labels: ["bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: MXterm Pro version
+      description: Settings → About (e.g. 1.1.73)
+    validations: { required: true }
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      description: e.g. macOS 15 · MacBook Pro M3, Windows 11, Ubuntu 24.04
+    validations: { required: true }
+  - type: input
+    id: agent
+    attributes:
+      label: Agent CLI involved (if any)
+      description: e.g. Claude Code, Codex, Gemini CLI
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations: { required: true }
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps, starting from a fresh pane if you can.
