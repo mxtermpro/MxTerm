@@ -1,29 +1,59 @@
 # One git worktree per AI agent
 
-<img src="../assets/git-worktree.webp" alt="MXterm Pro git worktree isolation: each AI agent pane gets its own worktree and swarm branch so Claude Code, Codex and OpenCode do not clash on one checkout" width="100%" />
+![Diagram: one repo fans out to three git worktrees, each on its own swarm branch, one per coding agent](../assets/guides/git-worktree.webp)
 
-When two agents work in the same repository, they share one working directory. If one runs `git checkout` or `git stash`, the files the other has open change under it. A git worktree per agent gives each agent its own copy of the files on its own branch.
+> **In short:** when two agents work in the same repository they share one working directory, and one agent's `git checkout` rewrites the files the other has open. With isolation on, each agent pane gets its own worktree and branch, which reduces the chance of checkouts clashing.
+
+## Who needs it
+
+A single agent alone in a repo has nothing to collide with, so isolation buys nothing. It matters once you run two or more agents against the same repository at the same time. The Swarm Task Orchestrator ships two presets built for that: "Full Swarm Trio (Lead, QA, Docs)" dispatches Claude Code, Codex and OpenCode together, and "Feature Duo (Dev + Tester)" pairs Claude Code with Codex. Both turn isolation on by default. You do not need a preset: open a new tab, choose the agents and tick the box yourself.
 
 ## Turn it on
 
-It is an opt-in checkbox, off by default: **Isolate features in git worktrees**, in the new-tab composer. It works only in a git repository. In a folder that is not a git repo, the panes fall back to the plain folder with a notice.
+The checkbox is **Isolate features in git worktrees**, in the New Workspace screen and in the Swarm Task Orchestrator dialog. It is off by default and works only in a git repository. In a folder that is not a git repo, the panes fall back to the plain folder with a notice.
 
-When it is on, each new **agent** pane gets its own checkout in `<repo>/.worktrees/<slug>` on a freshly named branch such as `swarm/brave-otter`. MXterm Pro adds `.worktrees/` to the repo's `.gitignore`. A plain shell pane with no agent stays at the repo root. Panes you split off afterwards open in the workspace folder, not in a worktree of their own.
-
-The Swarm Task Orchestrator presets "Full Swarm Trio (Lead, QA, Docs)" and "Feature Duo (Dev + Tester)" turn isolation on by default.
+When it is on, each new **agent** pane gets its own checkout inside `<repo>/.worktrees/<slug>`, on a freshly generated branch named `swarm/<adjective>-<noun>`, for example `swarm/brave-otter`. If the name is taken, MXterm Pro retries with a numeric suffix. It also adds `.worktrees/` to the repo's `.gitignore` so the throwaway checkouts are never committed by accident. A plain terminal pane with no agent opens at the repo root, untouched, and so does a pane you split off afterwards.
 
 ## What it prevents, and what it does not
 
-It removes the filesystem-level fights: one agent's checkout rewriting files another agent has open. It does not merge anything. Two agents can still produce branches that need a human-reviewed merge, and MXterm Pro does not automate that. Merge the normal way: `git merge swarm/brave-otter`, or push and open a pull request.
+Take "Feature Duo": Claude Code lands on its own branch and worktree, Codex on another. Without isolation, if Codex ran `git checkout` or `git stash` mid-task, the files Claude had open would change under it. With separate worktrees each agent has its own copy of every file, so that cannot happen.
 
-## Cleaning up
+Isolation does not remove every conflict. Two agents editing the same feature from different angles can still produce branches that need a human-reviewed merge, and MXterm Pro does not automate that. What it removes is narrow and mechanical: filesystem-level fights between agents.
 
-An agent can only remove a worktree that has no uncommitted changes. From the UI, **Clean up worktrees…** next to the Git panel's worktree list removes them.
+## Add, merge and remove
+
+- **Add mid-session:** an agent can spawn a new isolated worker pane for a delegated sub-task. This works only in a workspace created with isolation on.
+- **Merge:** stays manual on purpose. Run `git merge swarm/brave-otter` from the main worktree, or push the branch and open a pull request.
+- **Remove:** an agent can only remove a worktree with no uncommitted changes, with no override. From the UI, **Clean up worktrees…** next to the Git panel's worktree list clears them. Closing a pane never deletes its worktree.
+
+## The manual alternative
+
+You can do this by hand with `git worktree add` and `git worktree remove`, which is fine for one or two agents. What MXterm Pro removes is the bookkeeping as agents multiply: picking a unique branch name, provisioning the checkout, pointing the pane's working directory at it, and refusing to delete one that holds uncommitted work.
 
 ## Free and Pro
 
-Worktree isolation works the same on both plans.
+Worktree isolation works the same on both plans. What the plan limits is the size of a Control Room: Free runs 2 agents in a room, so "Feature Duo" fits and "Full Swarm Trio" in a single room needs Pro.
+
+## FAQ
+
+**Does it work with any agent?**
+It applies to the agent panes you pick in the composer: Claude Code, Codex, Gemini CLI, OpenCode and the other built-in agents.
+
+**Where are the worktrees?**
+Inside the repo, at `<repo>/.worktrees/<slug>`, where the slug is the branch name with the slash written as a dash.
 
 ---
 
-Full guide: [Isolate AI agents with git worktrees](https://mxterm.net/blog/isolate-ai-agents-with-git-worktrees) · See also [Control Room](control-room.md)
+## Read more on mxterm.net
+
+- **Full guide:** [Isolating Parallel AI Agents with Git Worktrees](https://mxterm.net/blog/isolate-ai-agents-with-git-worktrees)
+- [Agents and Control Room docs](https://mxterm.net/docs/agents-and-war-room)
+- **Get it:** [Download MXterm Pro](https://mxterm.net/download) for macOS, Windows and Linux, or see what [MXterm Pro](https://mxterm.net/) does in one page.
+
+## Related guides
+
+- [Control Room: run Claude Code, Codex and Gemini CLI together](control-room.md): Let agents message each other and hand off tasks.
+- [Run Claude Code and Codex in split terminal panes](split-terminal.md): Two agents, two panes, one repo, no checkout fights.
+- [Run Cursor Agent in a multi-pane terminal](cursor-agent.md): Cursor's CLI agent with a live status dot.
+
+[← All guides](README.md)
